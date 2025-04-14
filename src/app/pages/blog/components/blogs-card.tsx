@@ -20,6 +20,7 @@ import { dashboardService } from '@/api'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
+dayjs.extend(relativeTime)
 interface BlogsCardProps {
   id: number
   title: string
@@ -32,6 +33,7 @@ interface BlogsCardProps {
   commentsCount: number
   likedByUser?: boolean
   total_likes: number
+  created_at: string 
   onDelete: (id: number) => void
   onEdit: () => void
   onLike: () => void
@@ -58,6 +60,7 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
   likedByUser,
   imageUrl,
   profileImageUrl,
+  created_at,
   onDelete,
   onEdit,
   onLike,
@@ -66,6 +69,7 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
   const [commentText, setCommentText] = useState('')
   const [isCommenting, setIsCommenting] = useState(false)
   const [comments, setComments] = useState<Comment[]>([])
+   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const fetchComments = async () => {
     try {
@@ -96,7 +100,7 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
 
   return (
     <>
-      <Card className="w-full">
+      <Card className="w-full"  onClick={() => setIsModalOpen(true)}>
         {/* Header */}
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div className="flex items-center gap-2">
@@ -108,6 +112,12 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
             <div>
               <CardTitle className="text-sm font-medium">{userName}</CardTitle>
               <p className="text-xs text-muted-foreground">{title}</p>
+              <span
+                className="text-[11px] text-muted-foreground"
+                title={dayjs(created_at).format('MMM D, YYYY h:mm A')}
+              > {dayjs(created_at).fromNow()}
+              </span>
+
             </div>
           </div>
           {/* Right side icons */}
@@ -149,7 +159,10 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
           <div className="flex items-center gap-4 w-full">
             <button
               className="flex items-center gap-1 hover:text-red-600 transition"
-              onClick={onLike}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent opening modal
+                onLike();
+              }}
             >
               {likedByUser ? (
                 <IconHeartFilled size={16} stroke={1.5} className="text-red-500" />
@@ -160,17 +173,26 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
             </button>
 
             <button
-              onClick={handleOpenComment}
+             onClick={(e) => {
+              e.stopPropagation();
+              handleOpenComment(); 
+            }}
               className="text-xs text-blue-500 hover:underline flex items-center gap-1"
             >
+                {commentsCount > 1 ? (
+              <IconMessageCircle fill="currentColor" size={16} stroke={1.5} />
+            ) : (
               <IconMessageCircle size={16} stroke={1.5} />
+            )}
+           
+              {/* <IconMessageCircle size={16} stroke={1.5} /> */}
               <span>{commentsCount}</span>
             </button>
           </div>
         </CardFooter>
       </Card>
 
-      {/* 🟦 Comment Modal */}
+      {/* Comment Modal */}
       <Dialog open={isCommenting} onOpenChange={setIsCommenting}>
         <DialogContent>
           <DialogHeader>
@@ -209,6 +231,23 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+
+       {/* Modal Popup */}
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{title}</DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-col gap-2">
+                <img src={imageUrl} className="rounded-md w-full h-52 object-cover" />
+                <p className="text-sm">{value}</p>
+                <div className="text-xs text-muted-foreground mt-2">
+                  Posted by <strong>{userName}</strong> • {dayjs(created_at).fromNow()}
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
     </>
   )
 }
