@@ -54,11 +54,13 @@ export const Blogs = () => {
     )
   }
 
+  
   if (!data?.response?.data?.length) {
     return <p>No blogs available.</p>
   }
 
-  const { current_page, last_page, data: blogs } = data.response
+  const { data: blogs, current_page, total, next_page_url, prev_page_url } = data?.response || {}
+  const totalPages = Math.ceil(total / 10);
 
   return (
     <div>
@@ -79,17 +81,29 @@ export const Blogs = () => {
           />
         ))}
       </div>
+        {/* Pagination Controls */}
+        <div className="flex justify-between mt-6 items-center">
+                <Button
+                  disabled={!prev_page_url || isFetching}
+                  onClick={() => {
+                    setPage((prev) => Math.max(prev - 1, 1))
+                  }}
+                >
+                  Previous
+                </Button>
+                <span className="text-sm">Page {current_page} of {totalPages}</span>
+                <Button
+                  disabled={!next_page_url || isFetching}
+                  onClick={() => {
+                    setPage((prev) => prev + 1)
+                  }}
+                >
+                  Next
+                </Button>
+              </div>
 
-      {/* Pagination Controls */}
-      <div className="flex justify-between mt-6">
-        <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
-          Previous
-        </Button>
-        <span>Page {current_page} of {last_page}</span>
-        <Button disabled={page === last_page} onClick={() => setPage((p) => p + 1)}>
-          Next
-        </Button>
-      </div>
-    </div>
+              {isFetching && <p className="text-center text-xs mt-2">Loading...</p>}
+            </div>
+   
   )
 }

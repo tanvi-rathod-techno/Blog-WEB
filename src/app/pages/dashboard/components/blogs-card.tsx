@@ -21,6 +21,7 @@ interface BlogsCardProps {
   likedByUser?: boolean
   onDelete: (id: number) => void
   onEdit: () => void
+  onLike: () => void 
 }
 
 export const BlogsCard: React.FC<BlogsCardProps> = ({
@@ -34,7 +35,8 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
   imageUrl,
   profileImageUrl,
   onDelete,
-  onEdit
+  onEdit,
+  onLike
 }) => {
   return (
     <Card className="w-full">
@@ -87,22 +89,25 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
 
       {/* Footer */}
       <CardFooter className="flex justify-between items-center text-xs text-muted-foreground">
-      <div className="flex items-center gap-4">
-      <button className="flex items-center gap-1 hover:text-red-600 transition">
-        {likedByUser ? (
-          <IconHeartFilled size={16} stroke={1.5} className="text-red-500" />
-        ) : (
-          <IconHeart size={16} stroke={1.5} />
-        )}
-        <span>{likesCount}</span>
-      </button>
-        <button className="flex items-center gap-1 hover:text-blue-600 transition">
-          <IconMessageCircle size={16} stroke={1.5} />
-          <span>Comment</span>
-        </button>
-      </div>
-      
-    </CardFooter>
+           <div className="flex items-center gap-4">
+           <button
+             className="flex items-center gap-1 hover:text-red-600 transition"
+             onClick={onLike} 
+           >
+             {likedByUser ? (
+               <IconHeartFilled size={16} stroke={1.5} className="text-red-500" />
+             ) : (
+               <IconHeart size={16} stroke={1.5} />
+             )}
+             <span>{likesCount}</span>
+           </button>
+             <button className="flex items-center gap-1 hover:text-blue-600 transition">
+               <IconMessageCircle size={16} stroke={1.5} />
+               <span>Comment</span>
+             </button>
+           </div>
+           
+         </CardFooter>
     </Card>
   )
 }
