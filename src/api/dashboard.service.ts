@@ -31,11 +31,11 @@ class DashboardService {
     return this.api.delete<DashboardResponse>(`${this.controller}/${id}`)
   }
 
-   //get all blogs
-   async getAllBlogs(): Promise<DashboardResponse> {
-    const response = await this.api.post<DashboardResponse>(`all-blogs`)
-    return response
+  async getAllBlogs(page: number): Promise<DashboardResponse> {
+    const response = await this.api.post<DashboardResponse>(`all-blogs`, { page });
+    return response;
   }
+  
 
   async likeBlog(blogId: number): Promise<{ message: string }> {
     return this.api.post(`likes`, { blog_id: blogId })
