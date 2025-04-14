@@ -8,6 +8,8 @@ import {
 import { IconProps } from '@tabler/icons-react'
 import React from 'react'
 import { IconHeart, IconMessageCircle,IconTrash ,IconEdit ,IconHeartFilled} from '@tabler/icons-react'
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
+import { useState } from 'react'
 
 interface BlogsCardProps {
   id: number
@@ -18,8 +20,9 @@ interface BlogsCardProps {
   imageUrl: string //  New prop for the image
   profileImageUrl: string
   likesCount: number
+  commentsCount: number
   likedByUser?: boolean
-  onDelete: (id: number) => void
+  onDelete: () => void
   onEdit: () => void
   onLike: () => void 
 }
@@ -31,6 +34,7 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
   icon,
   userName,
   likesCount,
+  commentsCount,
   likedByUser,
   imageUrl,
   profileImageUrl,
@@ -38,6 +42,20 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
   onEdit,
   onLike
 }) => {
+
+  const [confirmDelete, setConfirmDelete] = useState({
+    isOpen: false,
+  })
+
+  const handleDelete = () => {
+    setConfirmDelete({ isOpen: true })
+  }
+
+  const confirmDeletePost = () => {
+    onDelete(id)
+    setConfirmDelete({ isOpen: false })
+  }
+
   return (
     <Card className="w-full">
      {/* Header */}
@@ -66,14 +84,14 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
                     </button>
                   )}
                   {onDelete && (
-                    <button
-                      className="text-muted-foreground hover:text-red-600 transition"
-                      onClick={() => onDelete(id)}
-                      title="Delete Post"
-                    >
-                      <IconTrash size={18} stroke={1.5} />
-                    </button>
-                  )}
+                  <button
+                    className="text-muted-foreground hover:text-red-600 transition"
+                    onClick={handleDelete}
+                    title="Delete Post"
+                  >
+                    <IconTrash size={18} stroke={1.5} />
+                  </button>
+                )}
                 </div>
       </CardHeader>
 
@@ -103,11 +121,23 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
            </button>
              <button className="flex items-center gap-1 hover:text-blue-600 transition">
                <IconMessageCircle size={16} stroke={1.5} />
-               <span>Comment</span>
+               <span>{commentsCount}</span>
              </button>
            </div>
            
          </CardFooter>
+
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={confirmDelete.isOpen}
+        message="Are you sure you want to delete this post?"
+        onConfirm={confirmDeletePost}
+        confirmBtnText="Delete"
+        closeBtnText="No"
+        onClose={() => setConfirmDelete({ isOpen: false })}
+      />
+
     </Card>
   )
 }

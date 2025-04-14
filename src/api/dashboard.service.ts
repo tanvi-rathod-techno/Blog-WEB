@@ -40,6 +40,17 @@ class DashboardService {
   async likeBlog(blogId: number): Promise<{ message: string }> {
     return this.api.post(`likes`, { blog_id: blogId })
   }
+
+  async commentBlog(data: { blog_id: string; commnet: string }) {
+    return this.api.post(`comments`, data);
+  }
+
+
+  async getCommentBlog(blogId: number): Promise<{ message: string }> {
+    return this.api.post(`get-comments`, { blog_id: blogId })
+  }
+
+
 }
 
 export const dashboardService = new DashboardService()

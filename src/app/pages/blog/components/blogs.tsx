@@ -17,6 +17,8 @@ interface BlogsCardProps {
   likedByUser: boolean
   commentsCount: number
   onLike: () => void
+  onAddComment: (comment: string) => void
+
 }
 
 
@@ -37,6 +39,14 @@ export const Blogs = () => {
       queryClient.invalidateQueries({ queryKey: ['blogs', page] })
     },
   })
+  
+  const commentMutation = useMutation({
+    mutationFn: (data: { blog_id: number; comment: string }) =>
+      dashboardService.commentBlog(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogs', page] });
+    },
+  });
   
   
   const getProfileImage = (userName: string, userId: number) => {
@@ -77,7 +87,10 @@ export const Blogs = () => {
             likesCount={blog.total_likes}
             likedByUser={blog.liked_by_user}
             onLike={() => likeMutation.mutate(blog.id)}
-            commentsCount={45}
+            onAddComment={(comment) =>
+              commentMutation.mutate({ blog_id: blog.id, comment }) 
+            }
+            commentsCount={blog.total_comments || 0} 
           />
         ))}
       </div>

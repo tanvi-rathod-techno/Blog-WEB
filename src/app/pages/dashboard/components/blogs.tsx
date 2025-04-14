@@ -76,7 +76,7 @@ import { useState } from 'react'
           profileImageUrl={getProfileImage(blog.user?.name || 'Unknown', blog.user?.id)}
           likesCount={blog.total_likes}
           likedByUser={blog.liked_by_user}
-          commentsCount={45}
+          commentsCount={blog.total_comments || 0}
           onDelete={handleDelete}
             onEdit={() => handleEdit({ 
             id: blog.id, 
