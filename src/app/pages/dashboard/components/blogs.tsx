@@ -11,7 +11,7 @@ import { useState } from 'react'
     const queryClient = useQueryClient()
     const [editBlog, setEditBlog] = useState<any | null>(null) 
     const [isFormOpen, setIsFormOpen] = useState(false)
-  const { isLoading, data } = useQuery({
+    const { isLoading, data } = useQuery({
     queryKey: ['blogs'],
     queryFn: async () => await dashboardService.getBlogs(),
     refetchOnMount: true,
@@ -77,6 +77,7 @@ import { useState } from 'react'
           likesCount={blog.total_likes}
           likedByUser={blog.liked_by_user}
           commentsCount={blog.total_comments || 0}
+          created_at={blog.created_at}
           onDelete={handleDelete}
             onEdit={() => handleEdit({ 
             id: blog.id, 

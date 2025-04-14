@@ -87,6 +87,7 @@ export const Blogs = () => {
             likesCount={blog.total_likes}
             likedByUser={blog.liked_by_user}
             onLike={() => likeMutation.mutate(blog.id)}
+            created_at={blog.created_at}
             onAddComment={(comment) =>
               commentMutation.mutate({ blog_id: blog.id, comment }) 
             }

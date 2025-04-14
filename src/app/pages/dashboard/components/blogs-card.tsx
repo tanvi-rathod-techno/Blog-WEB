@@ -5,12 +5,16 @@ import {
   CardContent,
   CardFooter
 } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { IconProps } from '@tabler/icons-react'
 import React from 'react'
 import { IconHeart, IconMessageCircle,IconTrash ,IconEdit ,IconHeartFilled} from '@tabler/icons-react'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { useState } from 'react'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 
+dayjs.extend(relativeTime)
 interface BlogsCardProps {
   id: number
   title: string
@@ -22,6 +26,7 @@ interface BlogsCardProps {
   likesCount: number
   commentsCount: number
   likedByUser?: boolean
+  created_at: string
   onDelete: () => void
   onEdit: () => void
   onLike: () => void 
@@ -38,6 +43,7 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
   likedByUser,
   imageUrl,
   profileImageUrl,
+  created_at,
   onDelete,
   onEdit,
   onLike
@@ -46,6 +52,7 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
   const [confirmDelete, setConfirmDelete] = useState({
     isOpen: false,
   })
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleDelete = () => {
     setConfirmDelete({ isOpen: true })
@@ -56,8 +63,10 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
     setConfirmDelete({ isOpen: false })
   }
 
+
   return (
-    <Card className="w-full">
+    <>
+    <Card className="w-full"   onClick={() => setIsModalOpen(true)}>
      {/* Header */}
      <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="flex items-center gap-2">
@@ -69,6 +78,11 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
           <div>
             <CardTitle className="text-sm font-medium">{userName}</CardTitle>
             <p className="text-xs text-muted-foreground">{title}</p>
+              <span
+                            className="text-[11px] text-muted-foreground"
+                            title={dayjs(created_at).format('MMM D, YYYY h:mm A')}
+                          > {dayjs(created_at).fromNow()}
+                          </span>
           </div>
         </div>
         {/* Right side icons */}
@@ -77,7 +91,10 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
                   {onEdit && (
                     <button
                       className="text-muted-foreground hover:text-yellow-600 transition"
-                      onClick={onEdit}
+                      onClick={(e) => {
+                        e.stopPropagation(); 
+                        onEdit(); 
+                      }}
                       title="Edit Post"
                     >
                       <IconEdit size={18} stroke={1.5} />
@@ -86,7 +103,10 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
                   {onDelete && (
                   <button
                     className="text-muted-foreground hover:text-red-600 transition"
-                    onClick={handleDelete}
+                    onClick={(e) => {
+                      e.stopPropagation(); 
+                      handleDelete(); 
+                    }}
                     title="Delete Post"
                   >
                     <IconTrash size={18} stroke={1.5} />
@@ -110,7 +130,10 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
            <div className="flex items-center gap-4">
            <button
              className="flex items-center gap-1 hover:text-red-600 transition"
-             onClick={onLike} 
+             onClick={(e) => {
+              e.stopPropagation(); // Prevent opening modal
+              onLike();
+            }}
            >
              {likedByUser ? (
                <IconHeartFilled size={16} stroke={1.5} className="text-red-500" />
@@ -119,8 +142,16 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
              )}
              <span>{likesCount}</span>
            </button>
-             <button className="flex items-center gap-1 hover:text-blue-600 transition">
-               <IconMessageCircle size={16} stroke={1.5} />
+             <button  onClick={(e) => {
+              e.stopPropagation();
+              handleOpenComment(); 
+            }} className="flex items-center gap-1 hover:text-blue-600 transition">
+              {commentsCount > 1 ? (
+                <IconMessageCircle fill="currentColor" size={16} stroke={1.5} />
+              ) : (
+                <IconMessageCircle size={16} stroke={1.5} />
+              )}
+               {/* <IconMessageCircle size={16} stroke={1.5} /> */}
                <span>{commentsCount}</span>
              </button>
            </div>
@@ -139,5 +170,22 @@ export const BlogsCard: React.FC<BlogsCardProps> = ({
       />
 
     </Card>
+  
+       {/* Modal Popup */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col gap-2">
+          <img src={imageUrl} className="rounded-md w-full h-52 object-cover" />
+          <p className="text-sm">{value}</p>
+          <div className="text-xs text-muted-foreground mt-2">
+            Posted by <strong>{userName}</strong> • {dayjs(created_at).fromNow()}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   )
 }
