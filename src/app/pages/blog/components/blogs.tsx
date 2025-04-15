@@ -22,13 +22,13 @@ interface BlogsCardProps {
 }
 
 
-
+const BLOG_LIMIT = 12;
 export const Blogs = () => {
   const [page, setPage] = useState(1)
   const queryClient = useQueryClient()
   const { isLoading, data, isFetching } = useQuery({
-    queryKey: ['blogs', page],
-    queryFn: async () => await dashboardService.getAllBlogs(page),
+    queryKey: ['blogs', page,BLOG_LIMIT],
+    queryFn: async () => await dashboardService.getAllBlogs(page,BLOG_LIMIT),
     keepPreviousData: true,
     refetchOnMount: true,
   })
@@ -70,7 +70,7 @@ export const Blogs = () => {
   }
 
   const { data: blogs, current_page, total, next_page_url, prev_page_url } = data?.response || {}
-  const totalPages = Math.ceil(total / 10);
+  const totalPages = Math.ceil(total / BLOG_LIMIT);
 
   return (
     <div>

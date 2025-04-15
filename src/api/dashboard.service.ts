@@ -17,8 +17,9 @@ class DashboardService {
     return response
   }
 
-  // Create blog
-  async createBlog(data: { blog_title: string; blog_content: string }) {
+  // Create blog with optional image URL
+  async createBlog(data: { blog_title: string; blog_content: string; image_path?: string }) {
+    console.log('data', data)
     return this.api.post<{ message: string }>(`${this.controller}`, data)
   }
 
@@ -31,8 +32,8 @@ class DashboardService {
     return this.api.delete<DashboardResponse>(`${this.controller}/${id}`)
   }
 
-  async getAllBlogs(page: number): Promise<DashboardResponse> {
-    const response = await this.api.post<DashboardResponse>(`all-blogs`, { page });
+  async getAllBlogs(page: number,limit = 12): Promise<DashboardResponse> {
+    const response = await this.api.post<DashboardResponse>(`all-blogs`, { page ,limit});
     return response;
   }
   

@@ -9,7 +9,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from '@/components/ui/use-toast'
 import { dashboardService } from '@/api'
-import { blogSchema } from '@/validations/blog.validation' 
+import { blogSchema } from '@/validations/blog.validation'
 import { useQueryClient } from '@tanstack/react-query'
 
 type BlogFormProps = {
@@ -19,19 +19,20 @@ type BlogFormProps = {
     id: number
     blog_title: string
     blog_content: string
+    image_path: string
   }
 }
-
 
 export const BlogForm = ({ isOpen, onClose, initialData }: BlogFormProps) => {
   const [blog_title, setTitle] = useState(initialData?.blog_title || '')
   const [blog_content, setContent] = useState(initialData?.blog_content || '')
+  const [image_path, setImagePath] = useState(initialData?.image_path || '')
   const queryClient = useQueryClient()
 
   const isEditMode = !!initialData?.id
 
   const { mutate: saveBlog, isPending } = useMutation({
-    mutationFn: (data: { blog_title: string; blog_content: string }) =>
+    mutationFn: (data: { blog_title: string; blog_content: string; image_path: string }) =>
       isEditMode
         ? dashboardService.updateBlog(initialData.id, data)
         : dashboardService.createBlog(data),
@@ -40,6 +41,7 @@ export const BlogForm = ({ isOpen, onClose, initialData }: BlogFormProps) => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] })
       setTitle('')
       setContent('')
+      setImagePath('')
       onClose(true)
     },
     onError: () => {
@@ -51,7 +53,7 @@ export const BlogForm = ({ isOpen, onClose, initialData }: BlogFormProps) => {
   })
 
   const handleSubmit = () => {
-    const result = blogSchema.safeParse({ blog_title, blog_content })
+    const result = blogSchema.safeParse({ blog_title, blog_content, image_path })
 
     if (!result.success) {
       const errors = result.error.format()
@@ -65,7 +67,16 @@ export const BlogForm = ({ isOpen, onClose, initialData }: BlogFormProps) => {
       return
     }
 
-    saveBlog({ blog_title, blog_content })
+    // Assuming that image_path is correctly set from the file input
+    saveBlog({ blog_title, blog_content, image_path })
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Set the image path directly to the file object
+      setImagePath(file)
+    }
   }
 
   return (
@@ -74,20 +85,33 @@ export const BlogForm = ({ isOpen, onClose, initialData }: BlogFormProps) => {
         <DialogHeader>
           <DialogTitle>{isEditMode ? 'Edit Blog' : 'Create Blog'}</DialogTitle>
         </DialogHeader>
-        <div className='space-y-4'>
+        <div className="space-y-4">
           <input
-            type='text'
-            placeholder='Blog Title'
-            className='w-full border p-2 rounded'
+            type="text"
+            placeholder="Blog Title"
+            className="w-full border p-2 rounded"
             value={blog_title}
             onChange={(e) => setTitle(e.target.value)}
           />
           <textarea
-            placeholder='Blog Content'
-            className='w-full border p-2 h-32 rounded'
+            placeholder="Blog Content"
+            className="w-full border p-2 h-32 rounded"
             value={blog_content}
             onChange={(e) => setContent(e.target.value)}
           />
+          {/* Image Upload Section */}
+          {/* <div>
+            <label className="block text-sm">Upload Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              className="w-full border p-2 rounded"
+              onChange={handleImageChange}
+            />
+            {image_path && typeof image_path === 'string' && (
+              <img src={image_path} alt="Uploaded" className="mt-2 w-32 h-32 object-cover rounded" />
+            )}
+          </div> */}
           <Button onClick={handleSubmit} disabled={isPending}>
             {isPending ? (isEditMode ? 'Updating...' : 'Submitting...') : isEditMode ? 'Update' : 'Submit'}
           </Button>
